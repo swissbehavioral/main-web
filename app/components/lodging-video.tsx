@@ -1,0 +1,2 @@
+import {T,useTranslate} from './locale';
+export function LodgingVideo(){const t=useTranslate();return <div className="lodging-video gallery-park-video"><video controls playsInline preload="none" poster="/images/facility/philippe-park.webp" aria-label={t('Philippe Park and supportive lodging environment near Swiss Behavioral Health')}><source src="/videos/philippe-park.mp4" type="video/mp4"/><T>{'Your browser does not support this video.'}</T> <a href="/videos/philippe-park.mp4"><T>{'Open lodging video'}</T></a></video><p><T>{'Philippe Park · Safety Harbor'}</T></p></div>;}

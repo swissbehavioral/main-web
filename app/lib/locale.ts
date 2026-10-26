@@ -32,12 +32,12 @@ export function localizedMeta(tags:any[],matches:readonly any[] = []) {
    {property:'og:title',content:title},
    {property:'og:description',content:description},
    {property:'og:url',content:result.find(tag=>tag.rel==='canonical')?.href},
-   {property:'og:image',content:'https://www.swissbehavioralhealth.com/images/facility/campus.webp'},
-   {property:'og:image:alt',content:'Swiss Behavioral Health campus'},
+   {property:'og:image',content:'https://www.swissbehavioralhealth.com/images/office/office-building-exterior.webp'},
+   {property:'og:image:alt',content:translateText('Swiss Behavioral Health office exterior in Oldsmar',dictionary)},
    {name:'twitter:card',content:'summary_large_image'},
    {name:'twitter:title',content:title},
    {name:'twitter:description',content:description},
-   {name:'twitter:image',content:'https://www.swissbehavioralhealth.com/images/facility/campus.webp'},
+   {name:'twitter:image',content:'https://www.swissbehavioralhealth.com/images/office/office-building-exterior.webp'},
    {name:'robots',content:'index, follow, max-image-preview:large'}
   ];
   for(const tag of defaults)if(tag.content && !result.some(existing=>(tag.name && existing.name===tag.name)||(tag.property && existing.property===tag.property)))result.push(tag);

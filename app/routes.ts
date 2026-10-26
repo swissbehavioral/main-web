@@ -5,8 +5,10 @@ export default [
   index("routes/home.tsx"),
   route("resources", "routes/resources.tsx"),
   route("resources/:slug", "routes/resource.tsx"),
+  route("gallery/:location", "routes/gallery.tsx"),
   route("team/:member", "routes/team-profile.tsx"),
   route("treatment/:program", "routes/program.tsx"),
+  route("speak-with-admissions", "routes/speak-with-admissions.tsx"),
   route("verify-insurance", "routes/verify-insurance.tsx"),
   route(":page", "routes/contract-page.tsx"),
 

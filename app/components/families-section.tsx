@@ -31,7 +31,7 @@ export function FamiliesSection() {
             <p className="font-display text-xl font-medium leading-relaxed text-navy-950 sm:text-2xl">
               <T>{copy("“Healing is rarely a solitary journey — families are essential partners in the recovery process.”")}</T>
             </p>
-            <ButtonLink to={families.cta.to} variant="accent" size="md">
+            <ButtonLink to="/speak-with-admissions" variant="accent" size="md">
               <T>{families.cta.label}</T>
               <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5"/>
             </ButtonLink>

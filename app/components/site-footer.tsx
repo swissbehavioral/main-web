@@ -24,7 +24,7 @@ export function SiteFooter() {
       <Container className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_0.9fr_1fr_1.1fr]">
         {/* Brand + contact (address is shown site-wide for compliance) */}
         <div>
-          <Logo variant="footer"/>
+          <Logo variant="footer" className="footer-brand-logo"/>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-cream/65">
             <T>{site.descriptor}</T><T>{". An intentionally small behavioral health program offering highly individualized treatment, exceptional access to our clinical team, and 14-bed supportive lodging."}</T></p>
 

@@ -1,7 +1,7 @@
 import { LocaleLink as Link, LocaleNavLink as NavLink } from "./locale";
 // i18n: authored text uses the shared locale dictionary; values and destinations stay unchanged.
 import { T, useTranslate, useLocale, LanguageSwitch } from "./locale";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { navigationPanels, type NavigationPanelId } from "../data/navigation";
 import { navItems, site } from "../data/site";
@@ -72,6 +72,20 @@ export function SiteHeader() {
         breakpoint.addEventListener("change", reset);
         return () => breakpoint.removeEventListener("change", reset);
     }, []);
+    const [panelPosition,setPanelPosition]=useState({left:0,top:80});
+    useLayoutEffect(()=>{
+      if(!openPanel)return;
+      const measure=()=>{
+       const header=headerRef.current,bar=header?.querySelector('.floating-navbar'),trigger=triggers.current[openPanel];
+       if(!header||!bar||!trigger)return;
+       const bounds=header.getBoundingClientRect(),nav=bar.getBoundingClientRect(),anchor=trigger.getBoundingClientRect();
+       const width=Math.min(420,bounds.width);
+       setPanelPosition({left:Math.max(0,Math.min(anchor.left-bounds.left-12,bounds.width-width)),top:nav.bottom-bounds.top});
+      };
+      measure();window.addEventListener('resize',measure);
+      const observer=new ResizeObserver(measure);if(headerRef.current)observer.observe(headerRef.current.querySelector('.floating-navbar')!);
+      return ()=>{window.removeEventListener('resize',measure);observer.disconnect();};
+    },[openPanel]);
     const panel = openPanel ? navigationPanels[openPanel] : null;
     return (<>
       <T>{expanded && <div className="navigation-backdrop" aria-hidden="true"/>}</T>
@@ -136,7 +150,7 @@ export function SiteHeader() {
             <Link to="/verify-insurance" className="nav-primary-action"><T>{"Verify insurance "}</T><IconArrowUpRight className="h-4 w-4"/>
             </Link>
           </div>
-          <div className="nav-language-mobile"><LanguageSwitch /><Link to="/verify-insurance" className="nav-mobile-verify"><T>{"Verify insurance"}</T></Link></div>
+          <div className="nav-language-mobile"><Link to="/verify-insurance" className="nav-mobile-verify" aria-label={translate("Verify insurance")}><span className="mobile-verify-full"><T>{"Verify insurance"}</T></span><span className="mobile-verify-short"><T>{"Verify"}</T></span></Link></div>
           <a href={site.phone.href} aria-label={translate(`Call ${site.phone.display}`)} className="nav-mobile-phone">
             <IconPhone className="h-4 w-4"/>
           </a>
@@ -144,7 +158,7 @@ export function SiteHeader() {
             <T>{mobileOpen ? (<IconX className="h-5 w-5"/>) : (<IconMenu className="h-5 w-5"/>)}</T>
           </button>
         </div>
-        <T>{panel && openPanel && (<nav key={openPanel} id={`navigation-panel-${openPanel}`} aria-labelledby={`nav-trigger-${openPanel}`} className="mega-panel simple-navigation-panel">
+        <T>{panel && openPanel && (<nav key={openPanel} id={`navigation-panel-${openPanel}`} aria-labelledby={`nav-trigger-${openPanel}`} className="mega-panel simple-navigation-panel" style={panelPosition}>
             <div className="mega-heading">
               <h2><T>{panel.label}</T></h2>
               <button type="button" className="mega-close" aria-label={translate("Close navigation")} onClick={() => {
@@ -161,6 +175,7 @@ export function SiteHeader() {
             </ul>
           </nav>)}</T>
         <T>{mobileOpen && (<nav id="mobile-navigation" aria-label={translate("Mobile")} className="mobile-mega-panel">
+            <div className="mobile-menu-language"><LanguageSwitch /></div>
             <p className="mobile-nav-eyebrow"><T>{"Explore Swiss Behavioral Health"}</T></p>
             <div className="mobile-nav-list">
               <T>{navItems.map((item) => item.children ? (<details key={item.to}>

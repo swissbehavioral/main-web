@@ -68,7 +68,7 @@ export function ProgramDetailPage({ program: baseProgram, }: {
               <T>{program.scheduleNote}</T>
             </p>
             <div className="mt-6 flex flex-col gap-3">
-              <ButtonLink to="/admissions" variant="primary" size="md">
+              <ButtonLink to="/speak-with-admissions" variant="primary" size="md">
                 <T>{copy("Speak With Admissions")}</T>
                 <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5"/>
               </ButtonLink>

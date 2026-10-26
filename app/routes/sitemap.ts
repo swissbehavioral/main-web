@@ -21,7 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     )
     .map((r) => r.path);
 
-  paths.push("/verify-insurance");
+  paths.push("/verify-insurance", "/speak-with-admissions", "/gallery/office", "/gallery/lodging");
   paths.push(...team.members.filter(member=>member.verified).map(member=>`/team/${member.id}`));
   const escapeXml = (value:string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
   const urls = [...new Set(paths)]

@@ -122,7 +122,7 @@ export const hero = {
   headlineAccent: "Personal by Nature.",
   body:
     "An intentionally small behavioral health program offering highly individualized treatment, exceptional access to our clinical team, and 14-bed supportive lodging beside Philippe Park in Safety Harbor, Florida. A more personal approach to substance use recovery and co-occurring mental health needs.",
-  primaryCta: { label: "Speak With Admissions", to: "/admissions" },
+  primaryCta: { label: "Speak With Admissions", to: "/speak-with-admissions" },
   secondaryCta: { label: "Verify Insurance", to: "/verify-insurance" },
   facts: [
     { label: "Guest beds, by design", value: "14" },
@@ -242,7 +242,7 @@ export const families = {
   eyebrow: "For Families",
   heading: "Recovery Rarely Happens in Isolation.",
   body: "Where clinically appropriate, family participation may include therapy, education, communication, and guidance intended to help loved ones understand recovery and support healthy boundaries.",
-  cta: { label: "Speak With Admissions", to: "/admissions" },
+  cta: { label: "Speak With Admissions", to: "/speak-with-admissions" },
 } as const;
 
 export const insurance = {
