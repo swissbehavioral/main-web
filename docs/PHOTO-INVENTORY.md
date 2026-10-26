@@ -22,4 +22,4 @@ The client identified the Waiting Area folder as the main office and Lodging Fac
 
 ## Current display
 
-The hero uses a single uncropped landscape of the office exterior with a restrained brand accent. Swap the photo reference in app/components/hero-slideshow.tsx to change it. Main sections display three previews per location; full collections at /gallery/office and /gallery/lodging use an image grid with an accessible full-image viewer. Photo descriptions are retained as alternative text only. The park video remains on the lodging gallery page.
+The hero uses three uncropped landscapes: the office exterior beside an offset column of two interior photographs. Swap the photo references in app/components/hero-slideshow.tsx to change it. Main sections display three previews per location; full collections at /gallery/office and /gallery/lodging use an image grid with an accessible full-image viewer. Photo descriptions are retained as alternative text only. The park video remains on the lodging gallery page.
