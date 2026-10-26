@@ -2870,3 +2870,34 @@ a[data-button-variant="primary"]:hover,a[data-button-variant="accent"]:hover,.pu
 @media(max-width:750px) {.public-body #admissions .admissions-timeline h3 {font-size:27px;}}
 @media(min-width:1800px) {.public-body #admissions .admissions-timeline h3 {font-size:1.75rem;}}
 @media(min-width:1100px) and (max-width:1799px) {.public-body main .hero-layout {grid-template-columns:1.1fr 1fr;gap:44px;}}
+
+/* Reduce outer gutters and oversized curves without squeezing content spacing. */
+.public-body .floating-navbar {border-radius:24px;}
+.public-body :is(.care-signature-panel,.therapy-studio-workspace,.verification-form) {border-radius:16px;}
+.public-body .hero-triptych-exterior {border-radius:22px 6px 6px 6px;}
+.public-body .hero-triptych-interiors figure:first-child {border-radius:6px 14px 6px 6px;}
+.public-body .hero-triptych-interiors figure:last-child {border-radius:6px 6px 16px 6px;}
+@media(min-width:761px) and (max-width:1799px) {
+ .public-body .site-container {padding-inline:28px;}
+ .public-body .floating-header {width:calc(100% - 40px);}
+}
+@media(max-width:760px) {
+ .public-body .site-container {padding-inline:16px;}
+ .public-body .floating-header {width:calc(100% - 24px);}
+ .public-body .floating-navbar {border-radius:18px;}
+ .public-body :is(.care-signature-panel,.therapy-studio-workspace,.verification-form,.admissions-contact-option,.home-questions details) {border-radius:12px;}
+ .public-body .care-signature-panel {padding:24px 16px;}
+ .public-body .therapy-studio-panel {padding:22px 18px;}
+ .public-body .therapy-mobile-chooser {padding:18px;}
+ .public-body .therapy-mobile-chooser>svg {right:30px;bottom:35px;}
+ .public-body .verification-form {padding:18px 14px;}
+ .public-body .admissions-contact-option {padding:22px 18px;gap:16px;}
+ .public-body .about-client-quote {padding:20px;border-radius:0 12px 12px 0;}
+ .public-body .about-benefits li {padding:18px 16px 18px 28px;border-radius:8px;}
+ .public-body .about-benefits li::before {left:12px;top:22px;}
+ .public-body .home-questions summary {padding:18px 16px;}
+ .public-body .home-questions details>div {padding:18px 16px;}
+ .public-body .hero-triptych-exterior {border-top-left-radius:16px;}
+ .public-body .hero-triptych-interiors figure:first-child {border-top-right-radius:10px;}
+ .public-body .hero-triptych-interiors figure:last-child {border-bottom-right-radius:12px;}
+}
