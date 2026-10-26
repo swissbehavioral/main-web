@@ -483,7 +483,7 @@
   "reserved page": "PÁGINA RESERVADA",
   "view unconfirmed template": "Ver plantilla sin confirmar",
   "understand this level of care": "Comprenda este nivel de atención",
-  "start a coverage review": "INICIAR UNA REVISIÓN DE COBERTURA",
+  "start a coverage review": "Inicie una revisión de cobertura",
   "let’s look at your options.": "Veamos sus opciones.",
   "tell us how to reach you.": "Díganos cómo contactarle.",
   "the live": "El formulario de",
@@ -768,5 +768,13 @@
   "view office gallery": "Ver galería de la oficina",
   "view lodging gallery": "Ver galería del alojamiento",
   "play slideshow": "Reproducir presentación",
-  "pause slideshow": "Pausar presentación"
+  "pause slideshow": "Pausar presentación",
+  "choose how to connect": "Elija cómo comunicarse",
+  "what happens next": "Qué sucede después",
+  "coverage & benefits": "Cobertura y beneficios",
+  "out-of-pocket costs": "Gastos de su bolsillo",
+  "payment options": "Opciones de pago",
+  "what does my plan cover for the recommended level of care?": "¿Qué cubre mi plan para el nivel de atención recomendado?",
+  "what deductible, co-pay or co-insurance may apply?": "¿Qué deducible, copago o coseguro podría aplicarse?",
+  "what payment options can i discuss with admissions?": "¿Qué opciones de pago puedo consultar con Admisiones?"
 }

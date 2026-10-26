@@ -15,38 +15,35 @@ export function AdmissionsSteps({ withHeading = true, }: {
 }) {
     const grid = useRef<HTMLOListElement>(null);
     const [active, setActive] = useState(0);
+    const [revealed,setRevealed]=useState<number[]>([]);
     useEffect(() => {
-        const element = grid.current;
-        if (!element || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        let frame = 0;
-        const update = () => {
-            frame = 0;
-            const rect = element.getBoundingClientRect();
-            const progress = Math.max(0, Math.min(1, (window.innerHeight * .85 - rect.top) / (rect.height + window.innerHeight * .3)));
-            setActive(Math.min(4, Math.floor(progress * 5)));
-        };
-        const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-        update();
-        window.addEventListener("scroll", schedule, { passive: true });
-        window.addEventListener("resize", schedule);
-        return () => { window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); cancelAnimationFrame(frame); };
+        const element=grid.current;
+        if(!element || window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+        const rows=Array.from(element.children);
+        const observer=new IntersectionObserver(entries=>{
+            entries.forEach(entry=>{if(entry.isIntersecting){const index=rows.indexOf(entry.target);setRevealed(previous=>previous.includes(index)?previous:[...previous,index]);observer.unobserve(entry.target);}});
+        },{threshold:.3,rootMargin:'0px 0px -10% 0px'});
+        rows.forEach(row=>observer.observe(row));
+        let frame=0;
+        const update=()=>{frame=0;const target=window.innerHeight*.5;let nearest=0,distance=Infinity;rows.forEach((row,index)=>{const rect=row.getBoundingClientRect();const current=Math.abs(rect.top+rect.height/2-target);if(current<distance){nearest=index;distance=current;}});setActive(nearest);};
+        const schedule=()=>{if(!frame)frame=requestAnimationFrame(update);};
+        update();window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);
+        return ()=>{observer.disconnect();window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);cancelAnimationFrame(frame);};
     }, []);
     const translate = useTranslate();
     const copy = usePageText();
     const admissions = usePageData(base_admissions);
     const site = usePageData(base_site);
-    return (<section id="admissions" className="section-surface surface-sand soft-admissions relative bg-cream py-20 text-navy-950 sm:py-28" aria-labelledby="admissions-heading">
+    return (<section id="admissions" className="section-surface surface-sand soft-admissions relative bg-cream py-20 text-navy-950 sm:py-28" aria-label={translate(admissions.heading)}>
       <Container>
         <T>{withHeading ? (<SectionHeading eyebrow={admissions.eyebrow} title={translate(admissions.heading)} description={admissions.intro} centered/>) : null}</T>
 
-        <ol ref={grid} className="admissions-bento" aria-label={translate(admissions.heading)}>
-          {admissions.steps.map((step, index) => <li key={step.number} className={`admission-tile admission-tile-${index + 1}`} data-active={active === index} data-complete={index < active}>
-            <span className="admission-tile-number" aria-hidden="true">{step.number}</span>
-            <span className="admission-tile-trace" aria-hidden="true"/>
+        <div className="admissions-scroll-journey"><div className="admissions-journey-marker" aria-hidden="true"><span key={active}>{admissions.steps[active].number}</span><span>/ {String(admissions.steps.length).padStart(2,"0")}</span></div><ol ref={grid} className="admissions-timeline" aria-label={translate(admissions.heading)}>
+          {admissions.steps.map((step, index) => <li key={step.number} className="admissions-timeline-step" data-active={active === index} data-revealed={revealed.includes(index)} aria-current={active===index?"step":undefined}>
+            <span className="admissions-step-number" aria-hidden="true">{step.number}</span>
             <div><h3><T>{step.title}</T></h3><p><T>{step.body}</T></p></div>
-            <span className="admission-tile-next" aria-hidden="true">{index === 4 ? "✓" : "↗"}</span>
           </li>)}
-        </ol>
+        </ol></div>
 
         {/* Callout */}
         <div className="soft-admissions-callout mt-14 flex flex-col gap-6 rounded-xl border border-navy-900/10 bg-sand p-7 sm:p-9 lg:flex-row lg:items-center lg:justify-between">

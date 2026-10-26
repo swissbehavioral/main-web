@@ -250,3 +250,11 @@ Validation: 29 unit checks, 15 CMS page-layout/edit checks, typecheck and produc
 - The 14. By Design numeral now uses Inter lining/tabular figures with a stronger weight, preserving the client title.
 - Office/lodging sections show three-photo previews each, with links to separate /gallery/office and /gallery/lodging pages. Full galleries retain all ten office/five lodging photos. Park video moved to the lodging gallery to keep main sections shorter. Gallery pages include localized metadata, schema and sitemap entries; photo captions stay below full-gallery images.
 - Verified slideshow controls/automatic changes, keyboard-friendly controls, office gallery navigation/photo selection, Spanish lodging gallery and retained video. Tests (32 units + 15 CMS layout checks), typecheck/build passed. Preview: docs/design-preview/hero-mobile-interior-final.png.
+
+## Hero, insurance, and admissions refinement — 2026-10-26
+
+- Replaced the hero photo collage with a single, uncropped office exterior landscape and restrained brand accents. No slideshow controls or additional image requests.
+- Rebuilt Insurance & Payment contact options as flat links, prioritizing the dedicated verification route. The insurance information page now explains the review sequence and provides coverage, cost, and payment questions to discuss with Admissions. Removed the duplicate inline form and repeated admissions component from that page; the working form remains at /verify-insurance.
+- Replaced admissions bento cards with a numbered timeline. IntersectionObserver reveals steps as they enter view, and a passive, animation-frame-throttled scroll handler updates the active waypoint and desktop counter. Content remains readable without JavaScript and with reduced motion enabled.
+- Preserved all existing CMS text slots and added Spanish translations for the new interface copy. Verified English and Spanish layouts at desktop, 393px, and 320px widths, plus dedicated form navigation and scroll step activation. No form submissions or chat messages were sent.
+- Validation: TypeScript, 32 unit tests, all 15 CMS layout checks, and production build passed.

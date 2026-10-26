@@ -2737,16 +2737,6 @@ a[data-button-variant="primary"]:hover,a[data-button-variant="accent"]:hover,.pu
 @media(max-width:760px) {.public-body main .hero-description {order:3;margin:0 0 4px;}.hero-visual {order:4;}.public-body main .hero-actions {order:5;}}
 .hero-slideshow-controls .hero-slideshow-pause {font-size:15px;width:32px;height:34px;border-color:transparent;}
 
-/* Landscape photography: a clear exterior view with two quiet supporting frames. */
-.hero-photo-composition {position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px 0 18px 18px;isolation:isolate;}
-.hero-photo-composition::before {content:"";position:absolute;inset:0 12% 0 0;border-radius:60px 10px 60px 10px;background:linear-gradient(145deg,rgb(93 164 162 / .24),rgb(8 46 107 / .07));z-index:-1;}
-.hero-composition-photo {margin:0;overflow:hidden;background:#ffffff;border:5px solid #ffffff;box-shadow:0 12px 28px rgb(8 46 107 / .12);border-radius:18px;}
-.hero-composition-photo img {display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;}
-.hero-composition-photo-0 {grid-column:1/-1;border-radius:44px 12px 12px 12px;}
-.hero-composition-photo-1 {margin-left:22px;}
-.hero-composition-photo-2 {margin-right:20px;border-radius:12px 12px 36px 12px;}
-@media(max-width:760px) {.hero-photo-composition {gap:10px;padding:12px 0 12px 10px;}.hero-composition-photo {border-width:3px;border-radius:12px;}.hero-composition-photo-0 {border-radius:30px 10px 10px 10px;}.hero-composition-photo-1 {margin-left:12px;}.hero-composition-photo-2 {margin-right:12px;}}
-
 /* Full collections are editorial image grids; descriptions remain accessible alt text. */
 .photo-collection-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start;margin:34px 0;}
 .photo-collection-grid>button {position:relative;display:block;width:100%;padding:0;border:0;border-radius:14px;overflow:hidden;background:#ffffff;cursor:zoom-in;}
@@ -2809,3 +2799,69 @@ a[data-button-variant="primary"]:hover,a[data-button-variant="accent"]:hover,.pu
 }
 .site-footer nav a,.site-footer p,.site-footer li a,.site-footer>.border-t a {color:rgb(255 255 255 / .86);}
 .site-footer nav a:hover,.site-footer li a:hover {color:#ffffff;text-decoration:underline;text-underline-offset:5px;}
+
+/* An uninterrupted landscape, without stacked frames or image cropping. */
+.hero-landscape {position:relative;margin:0 0 0 12px;padding:0 0 22px;isolation:isolate;}
+.hero-landscape img {display:block;width:100%;height:auto;border-radius:12px 72px 12px 12px;aspect-ratio:4/3;object-fit:contain;}
+.hero-landscape::before {content:"";position:absolute;inset:24px 24px 0 -12px;border-left:2px solid #318f82;border-bottom:2px solid #318f82;border-radius:0 0 0 24px;z-index:-1;}
+.hero-landscape-accent {position:absolute;bottom:0;right:0;width:28%;height:4px;border-radius:4px;background:#082e6b;}
+@media(max-width:760px) {.hero-landscape {margin-left:8px;padding-bottom:16px;}.hero-landscape img {border-top-right-radius:48px;}.hero-landscape::before {inset:18px 18px 0 -8px;}}
+
+/* Flat insurance pathways replace inset and translucent surfaces. */
+.insurance-pathways {padding:64px 0;background:#ffffff;color:#082e6b;}
+.insurance-pathways-layout {display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,100px);align-items:start;}
+.insurance-pathways-copy h2 {font:400 clamp(30px,3vw,44px)/1.15 var(--font-display);margin:0 0 24px;}
+.insurance-coverage-note {font-size:16px;line-height:1.8;border-left:3px solid #318f82;padding-left:22px;margin:26px 0 0;max-width:58ch;}
+.insurance-contact-list {border-top:1px solid rgb(8 46 107 / .2);}
+.insurance-contact-list>a {display:flex;justify-content:space-between;align-items:center;gap:24px;min-height:98px;padding:22px 24px;border-bottom:1px solid rgb(8 46 107 / .2);color:#082e6b;background:#ffffff;transition:background .2s;}
+.insurance-contact-list>a>span:first-child {min-width:0;}
+.insurance-contact-list strong {display:block;font-size:20px;font-weight:650;}
+.insurance-contact-list small {display:block;margin-top:7px;font-size:15px;line-height:1.5;overflow-wrap:anywhere;}
+.insurance-contact-list>a>span:last-child {font-size:27px;}
+.insurance-contact-list>a.insurance-contact-primary {background:#082e6b;color:#ffffff;}
+.insurance-contact-list>a:hover {background:rgb(93 164 162 / .12);}
+.insurance-contact-list>a.insurance-contact-primary:hover {background:#082e6b;text-decoration:underline;text-underline-offset:5px;}
+.insurance-contact-list>a:focus-visible {outline:3px solid #318f82;outline-offset:3px;}
+.insurance-review {padding:72px 0;border-block:1px solid rgb(8 46 107 / .14);background:rgb(93 164 162 / .07);color:#082e6b;}
+.insurance-review-layout {display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,7vw,110px);}
+.insurance-review h2 {font:400 clamp(34px,3.5vw,54px)/1.1 var(--font-display);margin:20px 0;}
+.insurance-review-layout>div>p:not(.brand-eyebrow) {font-size:17px;line-height:1.8;margin:0 0 26px;max-width:55ch;}
+.insurance-review-layout>div>p.insurance-review-privacy {font-size:14px;margin:22px 0 0;line-height:1.75;}
+.insurance-review ol {list-style:none;margin:0;padding:0;}
+.insurance-review li {display:flex;align-items:start;gap:24px;border-top:1px solid rgb(8 46 107 / .22);padding:24px 0;}
+.insurance-review li>span {font:400 36px/1.1 var(--font-display);color:#318f82;}
+.insurance-review li>p {font-size:17px;line-height:1.65;margin:0;}
+.insurance-payment-details {padding:72px 0;color:#082e6b;background:#ffffff;}
+.insurance-payment-details .section-heading {max-width:820px;}
+.insurance-question-topics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;margin:40px 0;}
+.insurance-question-topics>div {border-top:3px solid #318f82;padding-top:22px;}
+.insurance-question-topics h3 {font:400 28px/1.2 var(--font-display);margin:0 0 14px;}
+.insurance-question-topics p {font-size:16px;line-height:1.75;margin:0;}
+.insurance-details-actions {display:flex;flex-wrap:wrap;gap:14px;}
+@media(max-width:750px) {.insurance-pathways {padding:38px 0;}.insurance-pathways-layout,.insurance-review-layout {grid-template-columns:1fr;gap:32px;}.insurance-review,.insurance-payment-details {padding:48px 0;}.insurance-contact-list>a {padding:20px;}.insurance-question-topics {grid-template-columns:1fr;gap:26px;margin:30px 0;}.insurance-review li {gap:20px;}.insurance-review li>p {font-size:16px;}}
+@media(min-width:1800px) {.insurance-contact-list strong {font-size:1.25rem;}.insurance-contact-list small,.insurance-coverage-note,.insurance-review-layout>div>p:not(.brand-eyebrow),.insurance-review li>p,.insurance-question-topics p {font-size:1rem;}.insurance-review-layout>div>p.insurance-review-privacy {font-size:.875rem;}.insurance-question-topics h3 {font-size:1.6rem;}}
+
+/* A scroll-led journey: numbered waypoints, with no enclosing cards. */
+.admissions-scroll-journey {position:relative;display:grid;grid-template-columns:.65fr 1.35fr;gap:80px;margin:54px auto 0;max-width:1040px;align-items:start;}
+.admissions-journey-marker {position:sticky;top:180px;display:flex;align-items:baseline;gap:14px;color:#082e6b;padding:18px 0;border-top:2px solid #318f82;}
+.admissions-journey-marker>span:first-child {font:600 clamp(110px,12vw,170px)/1 var(--font-sans);letter-spacing:-.07em;font-variant-numeric:tabular-nums;animation:journey-number .4s both;}
+.admissions-journey-marker>span:last-child {font-size:20px;white-space:nowrap;}
+.admissions-timeline {list-style:none;margin:0;padding:0;}
+.admissions-timeline-step {position:relative;display:grid;grid-template-columns:54px 1fr;gap:24px;padding:26px 0 36px;min-height:165px;border-top:1px solid rgb(8 46 107 / .18);color:#082e6b;}
+.admissions-step-number {display:grid;place-items:center;align-self:start;width:48px;height:48px;border:1px solid #318f82;border-radius:50%;background:#ffffff;color:#082e6b;font-size:20px;font-weight:600;transition:background .3s,color .3s,transform .3s;}
+.admissions-timeline-step::after {content:"";position:absolute;top:85px;left:23px;bottom:12px;width:1px;background:rgb(49 143 130 / .4);}
+.admissions-timeline-step:last-child::after {display:none;}
+.admissions-timeline-step h3 {font:400 30px/1.2 var(--font-display);margin:4px 0 14px;}
+.admissions-timeline-step p {font-size:17px;line-height:1.75;margin:0;max-width:48ch;}
+.admissions-timeline-step[data-active=true] .admissions-step-number {background:#082e6b;color:#ffffff;border-color:#082e6b;transform:scale(1.08);}
+.admissions-timeline-step[data-revealed=true]>div {animation:journey-arrive .6s both;}
+.admissions-timeline-step[data-revealed=true]>.admissions-step-number {animation:journey-number .5s both;}
+.public-body .soft-admissions-callout {box-shadow:none;background:#ffffff;border:1px solid rgb(8 46 107 / .2);border-radius:12px;}
+@keyframes journey-arrive {from {opacity:.45;transform:translateY(18px);}to {opacity:1;transform:translateY(0);}}
+@keyframes journey-number {from {opacity:.3;transform:translateY(12px) scale(.94);}to {opacity:1;transform:translateY(0) scale(1);}}
+@media(max-width:750px) {.admissions-scroll-journey {grid-template-columns:1fr;gap:0;margin-top:34px;}.admissions-journey-marker {display:none;}.admissions-timeline-step {grid-template-columns:48px 1fr;gap:20px;min-height:155px;padding-block:24px 32px;}.admissions-timeline-step h3 {font-size:27px;}.admissions-timeline-step p {font-size:16px;}.admissions-timeline-step::after {top:82px;}}
+@media(min-width:1800px) {.admissions-scroll-journey {max-width:75%;gap:6vw;}.admissions-journey-marker>span:first-child {font-size:clamp(180px,10vw,340px);}.admissions-timeline-step h3 {font-size:1.75rem;}.admissions-timeline-step p {font-size:1rem;}.admissions-timeline-step {padding-block:36px 48px;min-height:200px;}}
+@media(prefers-reduced-motion:reduce) {.admissions-journey-marker>span:first-child,.admissions-timeline-step[data-revealed=true]>div,.admissions-timeline-step[data-revealed=true]>.admissions-step-number {animation:none;}.admissions-step-number,.insurance-contact-list>a {transition:none;}}
+.public-body #admissions .admissions-timeline h3 {font:400 30px/1.2 var(--font-display);color:#082e6b;margin:4px 0 14px;}
+@media(max-width:750px) {.public-body #admissions .admissions-timeline h3 {font-size:27px;}}
+@media(min-width:1800px) {.public-body #admissions .admissions-timeline h3 {font-size:1.75rem;}}
