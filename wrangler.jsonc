@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "main-web",
+  "main": "workers/app.mjs",
+  "compatibility_date": "2026-10-26",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./build/client",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "keep_vars": true,
+  "vars": {
+    "NODE_ENV": "production",
+    "APPWRITE_AUTH_ENABLED": "true"
+  },
+  "define": {
+    "process.env.NODE_ENV": "\"production\""
+  },
+  "alias": {
+    "undici": "./workers/native-fetch.mjs"
+  }
+}

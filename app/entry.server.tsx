@@ -1,92 +1,27 @@
 import { createNonce, securityHeaders } from "./lib/http-security.server";
-import { PassThrough } from "node:stream";
-
 import type { AppLoadContext, EntryContext } from "react-router";
-import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
-import type { RenderToPipeableStreamOptions } from "react-dom/server";
-import { renderToPipeableStream } from "react-dom/server";
+import { renderToReadableStream } from "react-dom/server";
 
 export const streamTimeout = 5_000;
-
-export default function handleRequest(
-  request: Request,
-  responseStatusCode: number,
-  responseHeaders: Headers,
-  routerContext: EntryContext,
-  loadContext: AppLoadContext,
-  // If you have middleware enabled:
-  // loadContext: RouterContextProvider
+/** Web Streams SSR works in both Node 24 and Cloudflare Workers. */
+export default async function handleRequest(
+ request: Request,
+ responseStatusCode: number,
+ responseHeaders: Headers,
+ routerContext: EntryContext,
+ loadContext: AppLoadContext,
 ) {
-  const nonce = typeof loadContext.cspNonce === "string" ? loadContext.cspNonce : createNonce();
-  if (!loadContext.securityApplied) for (const [key,value] of Object.entries(securityHeaders(request.url, nonce))) responseHeaders.set(key,value);
-  // https://httpwg.org/specs/rfc9110.html#HEAD
-  if (request.method.toUpperCase() === "HEAD") {
-    return new Response(null, {
-      status: responseStatusCode,
-      headers: responseHeaders,
-    });
-  }
-
-  return new Promise((resolve, reject) => {
-    let shellRendered = false;
-    let userAgent = request.headers.get("user-agent");
-
-    // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
-    // https://react.dev/reference/react-dom/server/renderToPipeableStream#waiting-for-all-content-to-load-for-crawlers-and-static-generation
-    let readyOption: keyof RenderToPipeableStreamOptions =
-      (userAgent && isbot(userAgent)) || routerContext.isSpaMode
-        ? "onAllReady"
-        : "onShellReady";
-
-    // Abort the rendering stream after the `streamTimeout` so it has time to
-    // flush down the rejected boundaries
-    let timeoutId: ReturnType<typeof setTimeout> | undefined = setTimeout(
-      () => abort(),
-      streamTimeout + 1000,
-    );
-
-    const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter context={routerContext} url={request.url} nonce={nonce} />,
-      {
-        nonce,
-        [readyOption]() {
-          shellRendered = true;
-          const body = new PassThrough({
-            final(callback) {
-              // Clear the timeout to prevent retaining the closure and memory leak
-              clearTimeout(timeoutId);
-              timeoutId = undefined;
-              callback();
-            },
-          });
-          const stream = createReadableStreamFromReadable(body);
-
-          responseHeaders.set("Content-Type", "text/html");
-
-          pipe(body);
-
-          resolve(
-            new Response(stream, {
-              headers: responseHeaders,
-              status: responseStatusCode,
-            }),
-          );
-        },
-        onShellError(error: unknown) {
-          reject(error);
-        },
-        onError(error: unknown) {
-          responseStatusCode = 500;
-          // Log streaming rendering errors from inside the shell.  Don't log
-          // errors encountered during initial shell rendering since they'll
-          // reject and get logged in handleDocumentRequest.
-          if (shellRendered) {
-            console.error("[render] Response rendering failed");
-          }
-        },
-      },
-    );
-  });
+ const nonce=typeof loadContext.cspNonce==='string'?loadContext.cspNonce:createNonce();
+ if(!loadContext.securityApplied)for(const [key,value] of Object.entries(securityHeaders(request.url,nonce)))responseHeaders.set(key,value);
+ responseHeaders.set('Content-Type','text/html; charset=utf-8');
+ if(request.method.toUpperCase()==='HEAD')return new Response(null,{status:responseStatusCode,headers:responseHeaders});
+ const body=await renderToReadableStream(<ServerRouter context={routerContext} url={request.url} nonce={nonce}/>,{
+  nonce,
+  signal:AbortSignal.timeout(streamTimeout+1000),
+  onError(){responseStatusCode=500;console.error('[render] Response rendering failed');},
+ });
+ if(isbot(request.headers.get('user-agent')||'')||routerContext.isSpaMode)await body.allReady;
+ return new Response(body,{status:responseStatusCode,headers:responseHeaders});
 }

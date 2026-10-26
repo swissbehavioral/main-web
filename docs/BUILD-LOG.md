@@ -217,3 +217,9 @@ Validation: 29 unit checks, 15 CMS page-layout/edit checks, typecheck and produc
 - Chat launcher has a continuous conic brand-color outline, implemented in CSS without moving the button/text; respects reduced-motion preferences. Browser confirmed animation angle advances.
 - Added shared metadata defaults and public Organization/WebSite/WebPage/Breadcrumb/Profile JSON-LD, preserving specific article metadata/schema. Organization schema is no longer output on admin routes. Sitemap now includes English/Spanish entries and alternates.
 - Raw-HTML audit passed for 46 public localized responses, admin indexing exclusion and unknown-route 404. Tests/typecheck/build passed. See docs/SEO-AUDIT.md.
+
+## 2026-10-26 — Cloudflare Worker deployment repair
+- Added Workers entry/config, official Wrangler dependency and deploy/preview/dry-run scripts. Existing Node/VPS entry remains supported.
+- Reproduced unsupported React development Console.createTask, Node pipeable SSR and Undici TLS ALPN behavior in actual Wrangler runtime; corrected production bundling, switched universal SSR to Web Streams and added Worker-only native-fetch SDK alias.
+- Required production configuration is checked before importing the server bundle; missing settings produce a controlled 503 without exposing credentials.
+- Wrangler smoke checks passed for homepage, verification, admin login and static logo using dummy credentials. Backend-dependent listing routes were not certified against dummy credentials. No live Appwrite writes performed. Deployment/environment instructions are in docs/CLOUDFLARE.md.

@@ -10,7 +10,10 @@
     "typecheck": "react-router typegen && tsc",
     "setup:appwrite": "node --env-file=.env scripts/appwrite-setup.mjs",
     "setup:content": "node --env-file=.env scripts/appwrite-content-setup.mjs",
-    "test": "node --test tests/*.test.mjs && node scripts/test-page-layout.mjs"
+    "test": "node --test tests/*.test.mjs && node scripts/test-page-layout.mjs",
+    "deploy:cloudflare": "npm run build && wrangler deploy",
+    "preview:cloudflare": "wrangler dev",
+    "check:cloudflare": "npm run build && wrangler deploy --dry-run"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -41,6 +44,7 @@
     "@types/react-dom": "^19.2.7",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3"
+    "vite": "^8.0.3",
+    "wrangler": "^4.152.0"
   }
 }

@@ -14,3 +14,8 @@
 !.env.example
 /tmp/
 *.log
+
+# Cloudflare local state and private bindings
+.wrangler/
+.dev.vars
+.dev.vars.*
