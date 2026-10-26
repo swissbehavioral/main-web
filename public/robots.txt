@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Non-public areas
+Disallow: /admin
+Disallow: /admin/login
+Disallow: /api/
+Disallow: /healthz
+
+Sitemap: https://www.swissbehavioralhealth.com/sitemap.xml

@@ -1,0 +1,12 @@
+node_modules
+.react-router
+build
+.git
+.env
+.env.*
+!.env.example
+storage
+context-vault
+docs
+*.log
+.DS_Store

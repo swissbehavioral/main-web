@@ -1,0 +1,16 @@
+.DS_Store
+.env
+/node_modules/
+
+# React Router
+/.react-router/
+/build/
+
+# Local lead store (file fallback provider — when Appwrite is not configured)
+/storage/
+
+# Private configuration and local working artifacts
+.env.*
+!.env.example
+/tmp/
+*.log

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+const base='http://127.0.0.1:5182';
+const health=await (await fetch(base+'/healthz')).json();
+assert.equal(health.provider,'file');assert.equal(health.appwrite.configured,false);
+const login=await fetch(base+'/admin/login',{method:'POST',redirect:'manual',headers:{Origin:base,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({email:'qa-local@example.com',password:'sbh-local-cms-qa-only'})});
+assert.equal(login.status,302);const cookie=login.headers.get('set-cookie').split(';')[0];
+const get=path=>fetch(base+path,{headers:{Cookie:cookie}});
+const csvResponse=await get('/admin/export?from=2026-10-25&to=2026-10-25');assert.equal(csvResponse.status,200);assert(csvResponse.headers.get('content-type').includes('text/csv'));
+const csv=await csvResponse.text();assert(csv.includes('QA Local Insurance'));assert(!csv.includes('2026-10-24T'));
+assert.equal((await get('/admin/export?from=2026-02-30')).status,400);
+assert.equal((await get('/admin/export?from=2026-10-26&to=2026-10-24')).status,400);
+const invalid=await(await get('/admin?from=2026-10-26&to=2026-10-24')).text();assert(invalid.includes('From date must be on or before Through date.'));
+const empty=await(await get('/admin?from=2020-01-01&to=2020-01-01')).text();assert(empty.includes('No leads match this view.'));
+console.log('PASS: authenticated local date filtering and CSV export agree; invalid/reversed ranges are rejected; empty ranges render correctly. No remote writes.');
