@@ -17,6 +17,7 @@ export default [
   route("admin/logout", "routes/admin.logout.tsx"),
   route("admin", "routes/admin.tsx", [
     index("routes/admin.dashboard.tsx"),
+    route("insurance", "routes/admin.insurance.tsx"),
     route("leads/:id", "routes/admin.lead.tsx"),
     route("staff", "routes/admin.staff.tsx"),
     route("chat", "routes/admin.chat.tsx"),
@@ -29,6 +30,7 @@ export default [
   route("admin/export", "routes/admin.export.ts"),
   route("api/chat", "routes/api.chat.ts"),
   route("api/chat/realtime", "routes/api.chat-realtime.ts"),
+  route("api/admin/notifications", "routes/api.admin-notifications.ts"),
   route("api/lead", "routes/api.lead.tsx"),
   route("sitemap.xml", "routes/sitemap.ts"),
   route("healthz", "routes/health.tsx"),

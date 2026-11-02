@@ -53,6 +53,7 @@ export interface Lead {
   message?: string;
   insurer?: string;
   memberId?: string;
+  insuranceDetails?: string;
   consent: boolean;
   source: string;
   referrer?: string;
@@ -76,6 +77,7 @@ export interface LeadInput {
   message?: string;
   insurer?: string;
   memberId?: string;
+  insuranceDetails?: string;
   consent: boolean;
   source: string;
   referrer?: string;

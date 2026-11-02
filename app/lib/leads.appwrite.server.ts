@@ -1,12 +1,7 @@
 import type { LeadPatch } from "./leads.types";
 import type { Models } from "node-appwrite";
 
-import {
-  getDatabases,
-  appwriteConfig,
-  ID,
-  Query,
-} from "./appwrite.server";
+import { getDatabases, appwriteConfig, ID, Query } from "./appwrite.server";
 import {
   isLeadStatus,
   type Lead,
@@ -38,6 +33,7 @@ interface LeadDocument extends Models.Document {
   message?: string | null;
   insurer?: string | null;
   memberId?: string | null;
+
   consent: boolean;
   source?: string | null;
   referrer?: string | null;
@@ -72,6 +68,7 @@ function toLead(doc: LeadDocument): Lead {
     message: doc.message ?? undefined,
     insurer: doc.insurer ?? undefined,
     memberId: doc.memberId ?? undefined,
+
     consent: Boolean(doc.consent),
     source: doc.source ?? "/",
     referrer: doc.referrer ?? undefined,
@@ -96,6 +93,7 @@ function toDocumentData(input: LeadInput): LeadDocumentData {
     message: input.message ?? "",
     insurer: input.insurer ?? "",
     memberId: input.memberId ?? "",
+
     consent: input.consent,
     source: input.source,
     referrer: input.referrer ?? "",
@@ -105,13 +103,50 @@ function toDocumentData(input: LeadInput): LeadDocumentData {
 }
 
 export async function createLead(input: LeadInput): Promise<Lead> {
-  const doc = await getDatabases().createDocument<LeadDocument>(
-    appwriteConfig.databaseId,
-    appwriteConfig.leadsCollectionId,
-    ID.unique(),
-    toDocumentData(input),
-  );
-  return toLead(doc);
+  const id = ID.unique(),
+    db = getDatabases();
+  if (!input.insuranceDetails) {
+    const doc = await db.createDocument<LeadDocument>(
+      appwriteConfig.databaseId,
+      appwriteConfig.leadsCollectionId,
+      id,
+      toDocumentData(input),
+    );
+    return toLead(doc);
+  }
+  const transaction = await db.createTransaction({ ttl: 60 });
+  try {
+    await db.createDocument({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: "insurance_requests",
+      documentId: id,
+      data: { payload: input.insuranceDetails },
+      permissions: [],
+      transactionId: transaction.$id,
+    });
+    const doc = await db.createDocument<LeadDocument>({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: appwriteConfig.leadsCollectionId,
+      documentId: id,
+      data: toDocumentData(input),
+      transactionId: transaction.$id,
+    });
+    await db.updateTransaction({
+      transactionId: transaction.$id,
+      commit: true,
+    });
+    return toLead(doc);
+  } catch (error) {
+    try {
+      await db.updateTransaction({
+        transactionId: transaction.$id,
+        rollback: true,
+      });
+    } catch {
+      console.error("[insurance] Transaction reconciliation may be required.");
+    }
+    throw error;
+  }
 }
 
 /**
@@ -119,9 +154,18 @@ export async function createLead(input: LeadInput): Promise<Lead> {
  * does not depend on a custom index for correct ordering.
  */
 export async function listLeads(): Promise<Lead[]> {
-  const all: Lead[] = []; let cursor: string | undefined;
+  const all: Lead[] = [];
+  let cursor: string | undefined;
   for (;;) {
-    const result = await getDatabases().listDocuments<LeadDocument>(appwriteConfig.databaseId, appwriteConfig.leadsCollectionId, [Query.limit(100), Query.orderDesc("$createdAt"), ...(cursor ? [Query.cursorAfter(cursor)] : [])]);
+    const result = await getDatabases().listDocuments<LeadDocument>(
+      appwriteConfig.databaseId,
+      appwriteConfig.leadsCollectionId,
+      [
+        Query.limit(100),
+        Query.orderDesc("$createdAt"),
+        ...(cursor ? [Query.cursorAfter(cursor)] : []),
+      ],
+    );
     all.push(...result.documents.map(toLead));
     if (result.documents.length < 100) break;
     cursor = result.documents.at(-1)!.$id;
@@ -136,9 +180,23 @@ export async function getLead(id: string): Promise<Lead | undefined> {
       appwriteConfig.leadsCollectionId,
       id,
     );
-    return toLead(doc);
+    const lead = toLead(doc);
+    if (lead.kind === "insurance")
+      try {
+        const insurance = await getDatabases().getDocument<
+          Models.Document & { payload: string }
+        >({
+          databaseId: appwriteConfig.databaseId,
+          collectionId: "insurance_requests",
+          documentId: id,
+        });
+        lead.insuranceDetails = insurance.payload;
+      } catch (error) {
+        if ((error as { code: number }).code !== 404) throw error;
+      }
+    return lead;
   } catch (error) {
-    if ((error as {code:number}).code !== 404) throw error;
+    if ((error as { code: number }).code !== 404) throw error;
     return undefined;
   }
 }

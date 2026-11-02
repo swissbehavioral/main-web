@@ -1,3 +1,5 @@
+import { readInsurance } from "../lib/insurance";
+import { sealInsurance } from "../lib/insurance-crypto.server";
 import { readFormData } from "../lib/security.server";
 import { sameOrigin, rateLimit } from "../lib/security.server";
 import { data } from "react-router";
@@ -30,7 +32,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const kindRaw = readString(form, "kind", 20);
-  if (!isLeadKind(kindRaw) || kindRaw === "chat") return data({ok:false,errors:{form:"Choose a valid inquiry type."}},{status:400});
+  if (!isLeadKind(kindRaw) || kindRaw === "chat")
+    return data(
+      { ok: false, errors: { form: "Choose a valid inquiry type." } },
+      { status: 400 },
+    );
   const kind = kindRaw;
 
   const name = readString(form, "name", 120);
@@ -41,7 +47,18 @@ export async function action({ request }: Route.ActionArgs) {
 
   const insurer = readString(form, "insurer", 120);
   const preferredContact = readString(form, "preferredContact", 12);
-  const errors = validateLead({ name, email, phone, kind, consent, message, insurer, preferredContact });
+  const errors = validateLead({
+    name,
+    email,
+    phone,
+    kind,
+    consent,
+    message,
+    insurer,
+    preferredContact,
+  });
+  const insurance = kind === "insurance" ? readInsurance(form) : null;
+  if (insurance) Object.assign(errors, insurance.errors);
   if (Object.keys(errors).length > 0) {
     return data({ ok: false, errors }, { status: 400 });
   }
@@ -55,15 +72,28 @@ export async function action({ request }: Route.ActionArgs) {
       name,
       email,
       phone,
-      preferredContact: preferredRaw === "phone" || (kind === "insurance" && !email) ? "phone" : "email",
+      preferredContact:
+        preferredRaw === "phone" || (kind === "insurance" && !email)
+          ? "phone"
+          : "email",
       bestTime: readString(form, "bestTime", 40),
       reason: readString(form, "reason", 60),
       message,
       insurer,
+      ...(insurance
+        ? {
+            insuranceDetails: sealInsurance({
+              ...insurance.values,
+              coverageAuthorization: true,
+              authorizationAt: new Date().toISOString(),
+              authorizationVersion: "2026-11-02",
+            }),
+          }
+        : {}),
       consent,
       // `source` is supplied by the form (the action URL is always /api/lead).
       source: readString(form, "source", 200) || "/",
-      referrer: request.headers.get("referer")?.slice(0,512) ?? undefined,
+      referrer: request.headers.get("referer")?.slice(0, 512) ?? undefined,
       userAgent: request.headers.get("user-agent")?.slice(0, 200) ?? undefined,
     });
 
@@ -71,7 +101,9 @@ export async function action({ request }: Route.ActionArgs) {
   } catch (error) {
     // Never fail silently — a lead that appears to send but doesn't is worse
     // than an error message. Tell the visitor to call instead.
-    console.error("[api/lead] failed to store lead", {code:(error as {code?:number}).code});
+    console.error("[api/lead] failed to store lead", {
+      code: (error as { code?: number }).code,
+    });
     return data(
       {
         ok: false,
@@ -86,5 +118,8 @@ export async function action({ request }: Route.ActionArgs) {
 
 /** GET is not supported. */
 export async function loader() {
-  return data({ ok: false, message: "Use POST to submit a lead." }, { status: 405 });
+  return data(
+    { ok: false, message: "Use POST to submit a lead." },
+    { status: 405 },
+  );
 }

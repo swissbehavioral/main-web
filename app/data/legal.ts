@@ -34,7 +34,7 @@ export const privacyDoc: LegalDoc = {
   "eyebrow": "Website privacy & cookies",
   "title": "Privacy Policy & Cookie Choices",
   "intro": "How we handle website inquiries, insurance requests, chat messages and browser storage \u2014 and the choices available to you.",
-  "updated": "October 25, 2026",
+  "updated": "November 2, 2026",
   "sections": [
     {
       "id": "overview",
@@ -52,7 +52,7 @@ export const privacyDoc: LegalDoc = {
         {
           "list": [
             "Contact and inquiry details you submit: name, email, phone, preferred contact method, best time to contact you, inquiry reason and message.",
-            "Insurance requests: contact details, insurer name and your permission to contact you. The current form does not request an insurance member ID.",
+            "Insurance requests: contact details, patient name and date of birth, relationship to the patient, insurer, optional policyholder details, member or subscriber ID, group number, plan type and insurer phone number, together with your authorization for a coverage review. Structured patient and policy details are encrypted in storage and accessible to authorized staff; they are excluded from routine CSV exports and notifications.",
             "Chat: an anonymous visitor session when you open chat; name, email, consent and messages if you start a conversation. Messages and conversation history are stored on our server systems so authorized staff can respond.",
             "Submission context: source page, referring page and browser information. Hosting and infrastructure providers may process IP addresses, request logs and device information to deliver and protect the service.",
             "Internal service records: assigned staff, inquiry status, verification outcome and staff notes associated with your request."
@@ -65,7 +65,7 @@ export const privacyDoc: LegalDoc = {
       "heading": "3. Sharing sensitive information safely",
       "blocks": [
         {
-          "p": "Use forms and chat for general inquiries. Please do not send medical records, diagnoses, medication lists, Social Security numbers, payment card information or insurance member IDs. Ask admissions for an appropriate way to share documents. If you include health details anyway, they are received and stored with your inquiry; this warning does not remove protections that may apply to that information."
+          "p": "Use the dedicated insurance verification form for the patient and policy details requested there. Do not put insurance identifiers in general inquiry forms or chat. Do not send medical records, diagnoses, medication lists, Social Security numbers or payment card information through any website form. Ask admissions for an appropriate way to share documents. Any health information received with your inquiry is stored with the request and remains subject to applicable protections."
         },
         {
           "p": "Chat and forms are not emergency services and may not receive an immediate response. Submitting a request does not establish a treatment relationship. An insurance request is not confirmation of eligibility, benefits, authorization, admission or payment."
@@ -110,6 +110,7 @@ export const privacyDoc: LegalDoc = {
             "sbh_cookie_preferences \u2014 first-party cookie storing your external-media choice, preference version and choice time for 180 days. It contains no inquiry or chat message.",
             "sbh_chat_session \u2014 first-party, HttpOnly visitor session cookie set when you open chat, lasting up to 7 days. It connects your browser to your chat history. Closing the chat does not delete the session or stored messages.",
             "sbh_admin_session \u2014 first-party, HttpOnly staff authentication cookie lasting up to 8 hours. It is used for staff sign-in, not ordinary browsing.",
+            "sbh-alerts:* — staff notification preferences, unread record references and acknowledgment timestamps stored in this browser profile. They do not contain message bodies, dates of birth or insurance identifiers. Desktop alerts are optional and require browser permission.",
             "sbh-notice-dismissed \u2014 sessionStorage preference used after you dismiss the website notice; it lasts for the browser tab session.",
             "Google Maps \u2014 optional external media. No map iframe is loaded until you accept optional media or use the explicit allow-and-load button. Once loaded, Google receives connection information and may use cookies under its own policy.",
             "Website fonts are hosted on this website; loading them does not send a request to Google Fonts."

@@ -18,7 +18,7 @@ export default function Insurance() {
     <h2 id="insurance-review-heading"><T>{copy('Request a verification')}</T></h2>
     <p><T>{copy('Share a few details and our admissions team will review your coverage options with you. This form is for insurance and payment questions only.')}</T></p>
     <ButtonLink to="/verify-insurance" size="lg"><T>Verify Insurance</T><span aria-hidden="true">↗</span></ButtonLink>
-    <p className="insurance-review-privacy"><T>Please do not send member IDs or medical records here. Our team will explain how to provide any additional information needed for review.</T></p>
+    <p className="insurance-review-privacy"><T>Use the dedicated insurance verification form for patient and policy details. Do not include medical records or diagnoses.</T></p>
    </div><ol aria-label={t('What happens next')}>{steps.map((step,index)=><li key={index}><span aria-hidden="true">{String(index+1).padStart(2,'0')}</span><p><T>{step}</T></p></li>)}</ol></div>
   </Container></section>
   <section className="insurance-payment-details"><Container>

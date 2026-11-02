@@ -71,6 +71,7 @@ export async function createLead(input: LeadInput): Promise<Lead> {
       message: input.message || undefined,
       insurer: input.insurer || undefined,
       memberId: input.memberId || undefined,
+      insuranceDetails: input.insuranceDetails,
       consent: input.consent,
       source: input.source,
       referrer: input.referrer || undefined,

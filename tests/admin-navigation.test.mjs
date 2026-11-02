@@ -6,6 +6,7 @@ test('Admin parents are deterministic for direct links and respect content kind'
  assert.deepEqual(adminBackLink('/admin/content/post-one','','post'),{to:'/admin/content?view=blog',label:'Back to blog articles'});
  assert.equal(adminBackLink('/admin/content/page-home/preview').to,'/admin/content/page-home');
  assert.equal(adminBackLink('/admin/leads/123').to,'/admin');
+ assert.equal(adminBackLink('/admin/leads/123','','insurance').to,'/admin/insurance');
  for(const path of ['/admin/staff','/admin/content','/admin/chat'])assert.equal(adminBackLink(path).to,'/admin');
 });
 test('Leaving a chat thread keeps inbox filters and removes only its selection',()=>{

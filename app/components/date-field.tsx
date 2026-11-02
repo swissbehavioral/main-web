@@ -1,3 +1,5 @@
+import { useTranslate, useLocale } from "./locale";
+import { es, enUS } from "react-day-picker/locale";
 import { useId, useRef, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { facilityToday, isCalendarDate } from "../lib/calendar";
@@ -21,11 +23,17 @@ export function DateField({
   name,
   label,
   defaultValue = "",
+  required = false,
+  maxDate,
 }: {
   name: string;
   label: string;
   defaultValue?: string;
+  required?: boolean;
+  maxDate?: string;
 }) {
+  const t = useTranslate(),
+    { locale } = useLocale();
   const id = useId(),
     input = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(defaultValue),
@@ -48,6 +56,7 @@ export function DateField({
               ref={input}
               id={id}
               name={name}
+              required={required}
               type="text"
               inputMode="numeric"
               placeholder="YYYY-MM-DD"
@@ -69,8 +78,9 @@ export function DateField({
                 const next = event.target.value;
                 setValue(next);
                 event.target.setCustomValidity(
-                  next && !isCalendarDate(next)
-                    ? "Enter a valid date as YYYY-MM-DD."
+                  next &&
+                    (!isCalendarDate(next) || (!!maxDate && next > maxDate))
+                    ? t("Enter a valid date as YYYY-MM-DD.")
                     : "",
                 );
                 if (isCalendarDate(next)) setMonth(localDate(next));
@@ -81,7 +91,7 @@ export function DateField({
                 type="button"
                 variant="ghost"
                 className="date-trigger"
-                aria-label={`Choose ${label.toLowerCase()}`}
+                aria-label={`${t("Choose date")}: ${label}`}
               >
                 <CalendarDays className="size-5" />
               </Button>
@@ -97,8 +107,10 @@ export function DateField({
           className="sbh-date-popover"
           aria-label={`${label} calendar`}
         >
-          <p className="calendar-kicker">{label} · Eastern time</p>
+          <p className="calendar-kicker">{label}</p>
           <Calendar
+            locale={locale === "es" ? es : enUS}
+            disabled={maxDate ? { after: localDate(maxDate) } : undefined}
             mode="single"
             captionLayout="dropdown"
             month={month}
@@ -106,7 +118,7 @@ export function DateField({
             selected={isCalendarDate(value) ? localDate(value) : undefined}
             onSelect={choose}
             startMonth={new Date(1900, 0)}
-            endMonth={new Date(2100, 11)}
+            endMonth={maxDate ? localDate(maxDate) : new Date(2100, 11)}
             autoFocus
             className="sbh-calendar"
           />
@@ -116,24 +128,27 @@ export function DateField({
               variant="ghost"
               onClick={() => choose(localDate(facilityToday()))}
             >
-              Today
+              {t("Today")}
             </Button>
             <Button type="button" variant="ghost" onClick={() => choose()}>
-              Clear
+              {t("Clear")}
             </Button>
             <Button
               type="button"
               variant="ghost"
               onClick={() => setOpen(false)}
             >
-              Close
+              {t("Close")}
             </Button>
           </div>
         </PopoverContent>
       </Popover>
       <span id={`${id}-hint`} className="sr-only">
-        Enter YYYY-MM-DD or open the calendar. Filter dates use
-        America/New_York.
+        {t(
+          maxDate
+            ? "Enter YYYY-MM-DD or choose a date of birth."
+            : "Enter YYYY-MM-DD or open the calendar. Filter dates use America/New_York.",
+        )}
       </span>
     </div>
   );

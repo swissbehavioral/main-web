@@ -20,13 +20,18 @@ export function meta() {
 }
 export async function loader({ request }: Route.LoaderArgs) {
   const identity = await requireAdmin(request);
-  const params = new URL(request.url).searchParams;
+  const url = new URL(request.url),
+    insuranceOnly = url.pathname === "/admin/insurance";
+  const params = new URLSearchParams(url.search);
+  if (insuranceOnly) params.set("kind", "insurance");
   const [all, staff] = await Promise.all([listLeads(), listStaff()]);
   const visible = all.filter(
     (l) => identity.role !== "agent" || l.assignedTo === identity.id,
   );
   const matches = filterLeads(visible, params);
-  const active = visible.filter((l) => l.status !== "deleted");
+  const active = visible.filter(
+    (l) => l.status !== "deleted" && (!insuranceOnly || l.kind === "insurance"),
+  );
   const page = Math.max(
     1,
     Math.min(
@@ -36,9 +41,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
   return data(
     {
+      insuranceOnly,
       identity,
       staff,
-      leads: matches.slice((page - 1) * 25, page * 25),
+      leads: matches
+        .slice((page - 1) * 25, page * 25)
+        .map(({ insuranceDetails, memberId, ...lead }) => lead),
       count: matches.length,
       page,
       filters: Object.fromEntries(params),
@@ -55,27 +63,34 @@ export async function loader({ request }: Route.LoaderArgs) {
             l.kind === "insurance" &&
             !["verified", "not_eligible"].includes(l.verificationStatus || ""),
         ).length,
-        admitted: active.filter((l) => l.status === "admitted").length,
+        admitted: active.filter((l) =>
+          insuranceOnly
+            ? l.verificationStatus === "verified"
+            : l.status === "admitted",
+        ).length,
       },
     },
     { headers: privateHeaders },
   );
 }
 export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
+  const base = d.insuranceOnly ? "/admin/insurance" : "/admin";
   const busy = useNavigation().state !== "idle";
   function pageUrl(page: number) {
     const p = new URLSearchParams(d.query);
     p.set("page", String(page));
-    return `/admin?${p}`;
+    return `${base}?${p}`;
   }
   return (
     <div className="management">
       <div className="management-stats">
         {Object.entries({
-          "Active leads": d.summary.total,
+          [d.insuranceOnly ? "Insurance requests" : "Active leads"]:
+            d.summary.total,
           "Awaiting response": d.summary.new,
           "Insurance to review": d.summary.insurance,
-          Admitted: d.summary.admitted,
+          [d.insuranceOnly ? "Coverage verified" : "Admitted"]:
+            d.summary.admitted,
         }).map(([label, count], index) => {
           const Icon = [Users, MessageSquare, ShieldCheck, UserCheck][index];
           return (
@@ -97,9 +112,15 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
           <h2>
             {d.identity.role === "agent"
               ? "My assigned leads"
-              : "Lead directory"}
+              : d.insuranceOnly
+                ? "Insurance inquiries"
+                : "Lead directory"}
           </h2>
-          <p>Manage the next step for every inquiry.</p>
+          <p>
+            {d.insuranceOnly
+              ? "Review coverage requests, assign a representative, and track verification outcomes."
+              : "Manage the next step for every inquiry."}
+          </p>
         </div>
         {can(d.identity.role, "export") && (
           <a
@@ -111,95 +132,117 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
         )}
       </div>
       <details className="lead-filter-drawer" open={!!d.dateError || undefined}>
-        <summary>Search & filters <span>{Object.entries(d.filters).filter(([key,value]) => key!=="page" && value && value!=="all").length || ""}</span></summary>
-      <Form method="get" className="management-filters" key={d.query}>
-        <div className="filter-panel-heading">
-          <span>Directory filters</span>
-          <small>Search, ownership &amp; date range</small>
-        </div>
-        <label>
-          Search
-          <input
-            name="q"
-            type="search"
-            defaultValue={d.filters.q}
-            placeholder="Name, email, phone…"
+        <summary>
+          Search & filters{" "}
+          <span>
+            {Object.entries(d.filters).filter(
+              ([key, value]) =>
+                key !== "page" &&
+                !(d.insuranceOnly && key === "kind") &&
+                value &&
+                value !== "all",
+            ).length || ""}
+          </span>
+        </summary>
+        <Form method="get" className="management-filters" key={d.query}>
+          <div className="filter-panel-heading">
+            <span>Directory filters</span>
+            <small>Search, ownership &amp; date range</small>
+          </div>
+          <label>
+            Search
+            <input
+              name="q"
+              type="search"
+              defaultValue={d.filters.q}
+              placeholder="Name, email, phone…"
+            />
+          </label>
+          <label>
+            Type
+            <select
+              name="kind"
+              disabled={d.insuranceOnly}
+              defaultValue={d.filters.kind || "all"}
+            >
+              <option value="all">All types</option>
+              {Object.entries(leadKindLabels).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Status
+            <select name="status" defaultValue={d.filters.status || "all"}>
+              <option value="all">All active leads</option>
+              {Object.entries(leadStatusLabels).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Assigned to
+            <select
+              name="assignedTo"
+              defaultValue={d.filters.assignedTo || "all"}
+            >
+              <option value="all">Everyone</option>
+              <option value="unassigned">Unassigned</option>
+              {d.staff.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name || s.email}
+                  {!s.active ? " (inactive)" : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <DateField
+            name="from"
+            label="From date"
+            defaultValue={d.filters.from}
           />
-        </label>
-        <label>
-          Type
-          <select name="kind" defaultValue={d.filters.kind || "all"}>
-            <option value="all">All types</option>
-            {Object.entries(leadKindLabels).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Status
-          <select name="status" defaultValue={d.filters.status || "all"}>
-            <option value="all">All active leads</option>
-            {Object.entries(leadStatusLabels).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Assigned to
-          <select
-            name="assignedTo"
-            defaultValue={d.filters.assignedTo || "all"}
-          >
-            <option value="all">Everyone</option>
-            <option value="unassigned">Unassigned</option>
-            {d.staff.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name || s.email}
-                {!s.active ? " (inactive)" : ""}
-              </option>
-            ))}
-          </select>
-        </label>
-        <DateField
-          name="from"
-          label="From date"
-          defaultValue={d.filters.from}
-        />
-        <DateField name="to" label="Through date" defaultValue={d.filters.to} />
-        <label>
-          Insurance review
-          <select
-            name="verification"
-            defaultValue={d.filters.verification || "all"}
-          >
-            <option value="all">All outcomes</option>
-            {Object.entries(verificationLabels).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="management-actions">
-          <Button className="admin-button" disabled={busy}>
-            {busy ? "Loading…" : "Apply filters"}
-          </Button>
-          <Link to="/admin">Reset</Link>
-        </div>
-        {d.dateError && (
-          <p className="management-error" role="alert">
-            {d.dateError}
+          <DateField
+            name="to"
+            label="Through date"
+            defaultValue={d.filters.to}
+          />
+          <label>
+            Insurance review
+            <select
+              name="verification"
+              defaultValue={d.filters.verification || "all"}
+            >
+              <option value="all">All outcomes</option>
+              {Object.entries(verificationLabels).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="management-actions">
+            <Button className="admin-button" disabled={busy}>
+              {busy ? "Loading…" : "Apply filters"}
+            </Button>
+            {d.insuranceOnly && (
+              <input type="hidden" name="kind" value="insurance" />
+            )}
+            <Link to={base}>Reset</Link>
+          </div>
+          {d.dateError && (
+            <p className="management-error" role="alert">
+              {d.dateError}
+            </p>
+          )}
+          <p className="management-help">
+            Dates include the full day in America/New_York. CSV exports every
+            matching result.
           </p>
-        )}
-        <p className="management-help">
-          Dates include the full day in America/New_York. CSV exports every
-          matching result.
-        </p>
-      </Form>
+        </Form>
       </details>
       <div className="management-heading">
         <p>
@@ -213,7 +256,7 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
               {[
                 "Received",
                 "Name / contact",
-                "Type",
+                d.insuranceOnly ? "Insurance provider" : "Type",
                 "Assigned to",
                 "Status",
                 "Review",
@@ -235,7 +278,11 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
                   <strong>{l.name}</strong>
                   <small>{l.email || l.phone || "—"}</small>
                 </td>
-                <td>{leadKindLabels[l.kind]}</td>
+                <td>
+                  {d.insuranceOnly
+                    ? l.insurer || "Not provided"
+                    : leadKindLabels[l.kind]}
+                </td>
                 <td>
                   {d.staff.find((s) => s.id === l.assignedTo)?.name ||
                     d.staff.find((s) => s.id === l.assignedTo)?.email ||

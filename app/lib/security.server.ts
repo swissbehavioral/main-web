@@ -21,4 +21,4 @@ export function rateLimit(key: string, limit = 30, duration = 60_000) {
 }
 export const privateHeaders = { "Cache-Control": "no-store, private", "X-Content-Type-Options":"nosniff", "Referrer-Policy":"no-referrer", "X-Robots-Tag":"noindex, nofollow, noarchive" };
 
-export { readFormData } from "./http-security.server";
+export { readFormData } from "./http-security.server.ts";

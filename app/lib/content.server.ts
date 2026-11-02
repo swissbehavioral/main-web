@@ -1,4 +1,4 @@
-import {appendRestoredSections} from "./content-migrations";
+import {appendRestoredSections,updateInsurancePolicy} from "./content-migrations";
 import { validatePageStructure } from "./page-copy";
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
@@ -35,7 +35,7 @@ const seedRecord = (doc: ContentDocument): ContentRecord => ({
 });
 function withRestoredSections(record:ContentRecord):ContentRecord {
  const seed=contentSeeds.find(doc=>doc.id===record.id);
- return {...record,draft:appendRestoredSections(record.draft,seed),published:record.published?appendRestoredSections(record.published,seed):null};
+ return {...record,draft:updateInsurancePolicy(appendRestoredSections(record.draft,seed)),published:record.published?updateInsurancePolicy(appendRestoredSections(record.published,seed)):null};
 }
 function decode(row: ContentRow): ContentRecord {
   return withRestoredSections({
