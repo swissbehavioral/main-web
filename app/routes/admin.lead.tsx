@@ -134,8 +134,8 @@ export default function LeadDetail({
           Changes saved.
         </p>
       )}
-      <div className="management-columns">
-        <section className="management-card">
+      <div className={`management-columns lead-detail-layout ${d.insurance?"has-insurance":""}`}>
+        <section className="management-card lead-contact-panel">
           <h3>Contact & submission</h3>
           <dl className="management-details">
             {Object.entries({
@@ -169,7 +169,7 @@ export default function LeadDetail({
           )}
           <small>Reference: {l.id}</small>
         </section>
-        <section className="management-card">
+        {d.insurance && <section className="management-card lead-policy-panel">
           {d.insurance && (
             <>
               <h3>Insurance review details</h3>
@@ -198,6 +198,8 @@ export default function LeadDetail({
               Protected insurance details are temporarily unavailable. Contact your administrator before processing this request.
             </p>
           )}
+        </section>}
+        <section className="management-card lead-workflow-panel">
           <h3>Lead workflow</h3>
           <Form method="post" key={l.updatedAt} className="management-form">
             <fieldset disabled={!editable || busy}>
@@ -255,7 +257,7 @@ export default function LeadDetail({
                 Internal notes
                 <textarea
                   name="notes"
-                  rows={7}
+                  rows={4}
                   maxLength={5000}
                   defaultValue={l.notes || ""}
                 />

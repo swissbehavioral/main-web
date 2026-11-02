@@ -1,3 +1,6 @@
+import {listLeads} from "../lib/leads.server";
+import {listConversations} from "../lib/chat.server";
+import {staffDeletionError} from "../lib/staff-deletion";
 import { readFormData } from "../lib/security.server";
 import { Form, data, useNavigation } from "react-router";
 import { requirePermission } from "../lib/auth.server";
@@ -61,6 +64,10 @@ export async function action({ request }: Route.ActionArgs) {
     const user = await getUsers().get({ userId: id });
     if (!roleFromLabels(user.labels))
       return data({ error: "Staff account not found." }, { status: 404 });
+    if(intent==='name') {
+      const name=String(form.get('name')||'').trim();if(name.length<2||name.length>128)return data({error:'Enter a name of 2–128 characters.'},{status:400});
+      await getUsers().updateName({userId:id,name});return data({success:'Staff name updated.'});
+    }
     // Existing administrators are protected from accidental removal and concurrent last-admin changes.
     if (id === identity.id || user.labels.includes("sbhadmin"))
       return data(
@@ -70,6 +77,13 @@ export async function action({ request }: Route.ActionArgs) {
         },
         { status: 400 },
       );
+    if(intent==='delete') {
+      const [leads,chats]=await Promise.all([listLeads(),listConversations(identity)]);
+      const error=staffDeletionError({actorId:identity.id,targetId:id,role:roleFromLabels(user.labels)!,email:user.email,confirmation:String(form.get('confirmEmail')||''),confirmed:form.get('confirmDelete')==='on',assigned:leads.some(lead=>lead.assignedTo===id)||chats.some(chat=>chat.assignedTo===id)});
+      if(error)return data({error},{status:400});
+      await getUsers().deleteSessions({userId:id});await getUsers().delete({userId:id});
+      return data({success:'Staff account deleted. Existing sessions have been revoked.'});
+    }
     if (intent === "update") {
       if (!STAFF_ROLES.includes(role))
         return data({ error: "Choose a valid role." }, { status: 400 });
@@ -121,11 +135,11 @@ export default function Staff({
 }: Route.ComponentProps) {
   const busy = useNavigation().state !== "idle";
   return (
-    <div className="management">
+    <div className="management staff-workbench">
       <div className="management-heading">
         <div>
           <h2>Staff & access</h2>
-          <p>Create accounts, assign roles, and deactivate access.</p>
+          <p>Create accounts, assign roles, manage access, and remove unused accounts.</p>
         </div>
       </div>
       {actionData && "error" in actionData && (
@@ -195,6 +209,7 @@ export default function Staff({
           <section className="management-card" key={s.id}>
             <h3>{s.name || s.email}</h3>
             <p>{s.email}</p>
+            <details className="staff-name-editor"><summary>Edit name</summary><Form method="post" className="management-form"><input type="hidden" name="id" value={s.id}/><label>Full name<input name="name" defaultValue={s.name} required minLength={2} maxLength={128}/></label><button className="admin-button secondary" name="intent" value="name" disabled={busy}>Save name</button></Form></details>
             <p className="management-help">
               {s.active ? "Active" : "Disabled"} · Email{" "}
               {s.verified ? "verified" : "not verified"}
@@ -230,7 +245,7 @@ export default function Staff({
               </fieldset>
             </Form>
             {s.role !== "admin" && (
-              <details>
+              <><details>
                 <summary>Reset password</summary>
                 <Form method="post" className="management-form">
                   <input type="hidden" name="id" value={s.id} />
@@ -254,7 +269,7 @@ export default function Staff({
                     Reset password
                   </button>
                 </Form>
-              </details>
+              </details><details className="staff-delete-panel"><summary>Delete staff account</summary><p className="management-help">Permanent removal. Reassign this person’s leads and chats first. Their sign-in access will be removed.</p><Form method="post" className="management-form"><input type="hidden" name="id" value={s.id}/><label>Type {s.email} to confirm<input name="confirmEmail" type="email" required autoComplete="off"/></label><label className="check-label"><input type="checkbox" name="confirmDelete" required/>I understand this account will be permanently deleted.</label><button className="admin-button danger" name="intent" value="delete" disabled={busy}>Delete staff account</button></Form></details></>
             )}
           </section>
         ))}

@@ -32,6 +32,12 @@ try {
  currentUser={...currentUser,labels:['sbhmanager']};await assert.rejects(()=>staffRoute.action({request:req('/admin/staff',{intent:'create'})}),e=>e.status===403);
  console.log('PASS administrators can create labeled staff accounts; managers cannot manage staff');
  currentUser={...currentUser,labels:['sbhadmin']};
+ users.get=async({userId})=>members.get(userId);let removed=0;users.deleteSessions=async()=>{};users.delete=async({userId})=>{removed++;members.delete(userId);};
+ users.updateName=async({userId,name})=>{members.get(userId).name=name;};const renamed=await staffRoute.action({request:req('/admin/staff',{intent:'name',id:'qa-created',name:'QA renamed staff'})});assert(renamed.data.success);assert.equal(members.get('qa-created').name,'QA renamed staff');
+ let deletion=await staffRoute.action({request:req('/admin/staff',{intent:'delete',id:'qa-created',confirmEmail:'wrong@example.test',confirmDelete:'on'})});assert(deletion.data.error);assert.equal(removed,0);
+ conversations.get('qa-visitor').assignedTo='qa-created';deletion=await staffRoute.action({request:req('/admin/staff',{intent:'delete',id:'qa-created',confirmEmail:'staff@example.test',confirmDelete:'on'})});assert(deletion.data.error.includes('Reassign'));assert.equal(removed,0);
+ conversations.get('qa-visitor').assignedTo='';deletion=await staffRoute.action({request:req('/admin/staff',{intent:'delete',id:'qa-created',confirmEmail:'staff@example.test',confirmDelete:'on'})});assert(deletion.data.success);assert.equal(removed,1);
+ console.log('PASS staff deletion validates confirmation, blocks assigned work and removes only the intended fixture account');
  await chatRoute.action({request:req('/admin/chat',{id:'qa-visitor',intent:'trash'})});assert.equal(conversations.get('qa-visitor').status,'deleted');
  let inbox=await chatRoute.loader({request:req('/admin/chat?status=all')});assert.equal(inbox.data.conversations.length,0);
  let trash=await chatRoute.loader({request:req('/admin/chat?status=deleted')});assert.equal(trash.data.conversations.length,1);

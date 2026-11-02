@@ -184,18 +184,6 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
         >
           Public website (new tab) <IconArrowUpRight className="h-4 w-4" />
         </Link>
-        <div className="sidebar-account">
-          <span className="account-avatar">
-            {(identity?.email ?? "A").slice(0, 1).toUpperCase()}
-          </span>
-          <div>
-            <strong>{identity?.email ?? "Admin"}</strong>
-            <small>{roleLabels[identity.role]}</small>
-          </div>
-          <Form method="post" action="/admin/logout">
-            <button type="submit">Sign out</button>
-          </Form>
-        </div>
       </aside>
       <main id="main-content" className="admin-main">
         <header className="admin-topbar">
@@ -215,9 +203,11 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
                 : "Connection issue"
               : "Workspace"}
           </span>
+          <Form method="get" action={path.startsWith("/admin/insurance")?"/admin/insurance":"/admin"} className="workspace-quick-search"><input name="q" type="search" placeholder="Search inquiries…" aria-label="Search inquiries"/><button type="submit">Search</button></Form>
+          <details className="workspace-profile"><summary><span className="workspace-profile-avatar">{(identity.name||roleLabels[identity.role]).slice(0,1).toUpperCase()}</span><span><strong>{identity.name||roleLabels[identity.role]}</strong><small>{roleLabels[identity.role]}</small></span><span aria-hidden="true">⌄</span></summary><div><p>Signed in as {identity.name||roleLabels[identity.role]}</p><Form method="post" action="/admin/logout"><button type="submit">Sign out</button></Form></div></details>
         </header>
         <div
-          className={`admin-content ${["/admin", "/admin/insurance"].includes(path) ? "lead-directory-page" : ""}`}
+          className={`admin-content ${["/admin", "/admin/insurance"].includes(path) ? "lead-directory-page" : ""} ${path.startsWith("/admin/chat")?"chat-workspace-page":""}`}
         >
           {back ? (
             <Link className="admin-context-back" to={back.to}>

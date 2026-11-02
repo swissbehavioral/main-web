@@ -1,3 +1,6 @@
+import {AdminReceivedCalendar} from "../components/admin-received-calendar";
+import {facilityToday} from "../lib/calendar";
+import {useEffect,useState} from "react";
 import { Users, MessageSquare, ShieldCheck, UserCheck } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { DateField } from "../components/date-field";
@@ -41,6 +44,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
   return data(
     {
+      activity:Array.from({length:7},(_,index)=>{const date=new Date(facilityToday()+"T12:00:00Z");date.setUTCDate(date.getUTCDate()-(6-index));const iso=date.toISOString().slice(0,10);return {date:iso,label:date.toLocaleDateString("en-US",{weekday:"short",timeZone:"UTC"}),count:active.filter(lead=>facilityToday(new Date(lead.createdAt))===iso).length};}),
       insuranceOnly,
       identity,
       staff,
@@ -74,6 +78,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 }
 export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
+  const [filtersOpen,setFiltersOpen]=useState(false);
+
   const base = d.insuranceOnly ? "/admin/insurance" : "/admin";
   const busy = useNavigation().state !== "idle";
   function pageUrl(page: number) {
@@ -82,7 +88,7 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
     return `${base}?${p}`;
   }
   return (
-    <div className="management">
+    <div className={`management directory-workbench ${d.insuranceOnly?"insurance-workbench":""}`}>
       <div className="management-stats">
         {Object.entries({
           [d.insuranceOnly ? "Insurance requests" : "Active leads"]:
@@ -107,6 +113,7 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
           );
         })}
       </div>
+      <section className="directory-activity-panel" aria-label="Inquiry activity over the last seven days"><header><h3>Inquiry activity</h3><span>Last 7 days</span></header><div className="inquiry-activity-bars">{d.activity.map(day=><div key={day.date}><strong>{day.count}</strong><div className="activity-bar-track"><span style={{height:`${day.count?Math.max(10,day.count/Math.max(1,...d.activity.map(item=>item.count))*100):2}%`}}/></div><span>{day.label}</span></div>)}</div></section>
       <div className="management-heading">
         <div>
           <h2>
@@ -131,9 +138,10 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
           </a>
         )}
       </div>
-      <details className="lead-filter-drawer" open={!!d.dateError || undefined}>
+      <aside className="directory-side-rail"><AdminReceivedCalendar key={d.query} base={base} filters={d.filters}/>
+      <details className="lead-filter-drawer" open={filtersOpen||!!d.dateError} onToggle={event=>setFiltersOpen(event.currentTarget.open)}>
         <summary>
-          Search & filters{" "}
+          Refine this view{" "}
           <span>
             {Object.entries(d.filters).filter(
               ([key, value]) =>
@@ -200,7 +208,8 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
               ))}
             </select>
           </label>
-          <DateField
+          <details className="directory-advanced-filters" open={!!(d.filters.from||d.filters.to||(d.filters.verification&&d.filters.verification!=="all"))}><summary>Date & review filters</summary><div>
+        <DateField
             name="from"
             label="From date"
             defaultValue={d.filters.from}
@@ -224,7 +233,8 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
               ))}
             </select>
           </label>
-          <div className="management-actions">
+          </div></details>
+        <div className="management-actions">
             <Button className="admin-button" disabled={busy}>
               {busy ? "Loading…" : "Apply filters"}
             </Button>
@@ -243,7 +253,7 @@ export default function Dashboard({ loaderData: d }: Route.ComponentProps) {
             matching result.
           </p>
         </Form>
-      </details>
+      </details></aside>
       <div className="management-heading">
         <p>
           {d.count} matching lead{d.count === 1 ? "" : "s"}
